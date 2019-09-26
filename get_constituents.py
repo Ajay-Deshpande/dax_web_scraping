@@ -6,7 +6,7 @@ from selenium.webdriver.common.keys import Keys
 import pandas as pd 
 from time import sleep
 
-driver = webdriver.Chrome('./chromedriver')
+driver = webdriver.Chrome('../chromedriver')
 
 try:
     driver.maximize_window()
@@ -25,19 +25,12 @@ try:
     sleep(3)
     driver.find_element_by_xpath('//button[contains(@class,"page-bar-type-button") and contains(text(),"100")]').click()
     sleep(3)
-    df = pd.read_html('<table>' + driver.page_source + '</table>')[0]
-    df = df[['Name','WKN']]
-    dic = df.to_dict(orient='records')
-    for i in dic:
-        driver.get('https://www.boerse-frankfurt.de/?lang=en')
-        search_bar = driver.find_element_by_xpath('//input')
-        search_bar.clear()
-        search_bar.send_keys(i['WKN'])
-        sleep(1)
-        search_bar.send_keys(Keys.ENTER)
-        sleep(2)
-        i['ISIN'] = driver.current_url.split('/')[-1]
-    print(dic)
+    lst = driver.find_elements_by_xpath('//table/tbody/tr/td/div/a')
+    print(len(lst))
+    df = pd.DataFrame()
+    for i in lst:
+        df = df.append({'constituent_name' : i.text, 'ISIN' : i.get_attribute('href').split('/')[-1]},ignore_index=True)
+    df.to_excel('constituent_ISIN.xlsx')
     driver.quit()
 except Exception as e:
     print(e)
