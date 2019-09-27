@@ -5,8 +5,39 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import pandas as pd 
 from time import sleep
+import sqlite3
 
-driver = webdriver.Chrome('../chromedriver')
+
+class Storage:
+    def __init__(self,db_name):
+        self.db_name = db_name
+        self.conn = sqlite3.connect(self.db_name)
+        # self.c = self.conn.cursor()
+    def run_query(self,query,params=None):
+        return list(self.conn.execute(query))
+        
+
+    def insert_data(self,table_name,data,columns):
+        
+        #ignore if data is already present
+        self.conn.executemany("INSERT OR IGNORE INTO {0} {1} VALUES (?,?)".format(table_name,tuple(columns)),data)
+        self.conn.commit()
+        
+        # self.c.close()
+    def create_table(self,table_query):
+        # self.get_connection()
+        self.conn.execute("""{}""".format(table_query))
+
+        # self.c.close()
+
+
+
+
+
+storage = Storage('constituents.db')
+
+
+driver = webdriver.Chrome('./chromedriver')
 
 try:
     driver.maximize_window()
@@ -30,7 +61,18 @@ try:
     df = pd.DataFrame()
     for i in lst:
         df = df.append({'constituent_name' : i.text, 'ISIN' : i.get_attribute('href').split('/')[-1]},ignore_index=True)
-    df.to_excel('constituent_ISIN.xlsx')
+    
+    
+    # df.to_excel('constituent_ISIN.xlsx')
+
+    #create table
+    storage.create_table("""create table if not exists constituents(
+        ISIN  text not null primary key,
+        constituents_name text
+    )""")
+    storage.insert_data('constituents',df.values,['ISIN','constituents_name'])
+
+    print(storage.run_query('select * from constituents'))
     driver.quit()
 except Exception as e:
     print(e)
