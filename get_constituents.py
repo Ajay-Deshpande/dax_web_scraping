@@ -14,7 +14,7 @@ class Storage:
         self.conn = sqlite3.connect(self.db_name)
         # self.c = self.conn.cursor()
     def run_query(self,query,params=None):
-        return list(self.conn.execute(query))
+        return (self.conn.execute(query))
         
 
     def insert_data(self,table_name,data,columns):
@@ -24,9 +24,9 @@ class Storage:
         self.conn.commit()
         
         # self.c.close()
-    def create_table(self,table_query):
-        # self.get_connection()
-        self.conn.execute("""{}""".format(table_query))
+    # def create_table(self,table_query):
+    #     # self.get_connection()
+    #     self.conn.execute("""{}""".format(table_query))
 
         # self.c.close()
 
@@ -63,16 +63,16 @@ try:
         df = df.append({'constituent_name' : i.text, 'ISIN' : i.get_attribute('href').split('/')[-1]},ignore_index=True)
     
     
-    # df.to_excel('constituent_ISIN.xlsx')
 
     #create table
-    storage.create_table("""create table if not exists constituents(
-        ISIN  text not null primary key,
-        constituents_name text
-    )""")
+    # storage.run_query("""create table if not exists constituents(
+    #     ISIN  text not null primary key,
+    #     constituents_name text
+    # )""")
+    #table_name,data,list of column names(string)
     storage.insert_data('constituents',df.values,['ISIN','constituents_name'])
 
-    print(storage.run_query('select * from constituents'))
+    print(list(storage.run_query('select * from constituents')))
     driver.quit()
 except Exception as e:
     print(e)
