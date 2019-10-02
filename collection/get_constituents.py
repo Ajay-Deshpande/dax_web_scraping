@@ -10,7 +10,7 @@ from storage import Storage
 
 storage = Storage('constituents.db')
 
-driver = webdriver.Chrome('./../../chromedriver')
+driver = webdriver.Chrome('./../../../chromedriver')
 
 try:
     driver.maximize_window()
