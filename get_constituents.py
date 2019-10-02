@@ -39,23 +39,7 @@ try:
     for i in lst:
         df = df.append({'constituent_name' : i.text, 'ISIN' : i.get_attribute('href').split('/')[-1]},ignore_index=True)
     
-    
 
-
-    # create table
-    storage.run_query("""create table if not exists constituents(
-        constituent_ISIN  text not null primary key,
-        constituent_name text,
-
-    )""")
-#        date text default CURRENT_DATE
-
-
-
-
-
-    #table_name,data,list of column names(string)
-    # print(df.values[0],df.values[0][0])
     storage.insert_data('constituents',df.values.tolist(),df.columns.tolist())
 
     print(list(storage.run_query('select * from constituents')))

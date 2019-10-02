@@ -17,32 +17,27 @@ def create_table_mappings():
     # print(list(conn.execute('SELECT * FROM TABLE_MAPPINGS')))
 
 
-"""
-isin text  primary key,
-constituent_name text not null,
-collection_date text not null,
-date text,
+def create_historical_price():
+    conn = sqlite3.connect('constituents.db')
+    # print(dff.columns)
+    conn.execute("""
+    create table historical_prices_and_volumes
+    (
+    constituent_ISIN text,
+    constituent_name text,
+    collection_date text default CURRENT_TIMESTAMP
+    date text,
+    open real,
+    close real,
+    high real,
+    low real,
+    volume real,
+    volume_units integer
+    )
+    """)
+    conn.close()
 
-"""
-# create table dummy(
-#     l text,
-#     date text default (datetime(timestamp, 'localtime'))
-# )
 
-
-
-
-s = storage.Storage('constituents.db')
-
-
-
-s.run_query("""
-create table dummy(
-    l text,
-    date text default CURRENT_DATE
-)
-""")
-s.insert_data('dummy',[['dwe','a']],['l','date'])
 
 
 """
@@ -65,23 +60,27 @@ create table historical_prices_and_volumes
 """
 
 
-def create_historical_price():
-    conn = sqlite3.connect('constituents.db')
-    # print(dff.columns)
-    conn.execute("""
-    create table historical_prices_and_volumes
-    (
-    constituent_ISIN text,
-    constituent_name text,
-    collection_date text default CURRENT_TIMESTAMP
-    date text,
-    open real,
-    close real,
-    high real,
-    low real,
-    volume real,
-    volume_units integer
-    )
-    """)
-    conn.close()
 
+
+
+
+"""
+s = storage.Storage('constituents.db')
+
+s.run_query('''CREATE TABLE stocks
+             (date text, trans text, symbol text, qty real, price real)''')
+
+list(s.run_query('select * from stocks'))
+
+# Insert a row of data
+s.run_query("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14),('2006-01-05','BUY','RHAT',100,35.14)")
+
+# Save (commit) the changes
+s.conn.commit()
+
+# We can also close the connection if we are done with it.
+# Just be sure any changes have been committed or they will be lost.
+s.conn.close()
+
+
+"""

@@ -18,35 +18,4 @@ class Storage:
         self.conn.execute(query)
         self.conn.commit()
         
-        # self.c.close()
-    # def create_table(self,table_query):
-    #     # self.get_connection()
-    #     self.conn.execute("""{}""".format(table_query))
-
-        # self.c.close()
-
-
-"""
-
-
-s = storage.Storage('constituents.db')
-
-s.run_query('''CREATE TABLE stocks
-             (date text, trans text, symbol text, qty real, price real)''')
-
-list(s.run_query('select * from stocks'))
-
-# Insert a row of data
-s.run_query("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14),('2006-01-05','BUY','RHAT',100,35.14)")
-
-# Save (commit) the changes
-s.conn.commit()
-
-# We can also close the connection if we are done with it.
-# Just be sure any changes have been committed or they will be lost.
-s.conn.close()
-
-
-
-
-"""
+   
