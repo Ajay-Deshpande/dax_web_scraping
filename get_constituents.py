@@ -7,32 +7,9 @@ import pandas as pd
 from time import sleep
 import sqlite3
 
+from test.storage import Storage
 
-class Storage:
-    def __init__(self,db_name):
-        self.db_name = db_name
-        self.conn = sqlite3.connect(self.db_name)
-        # self.c = self.conn.cursor()
-    def run_query(self,query,params=None):
-        return (self.conn.execute(query))
-        
-
-    def insert_data(self,table_name,data,columns):
-        
-        #ignore if data is already present
-        self.conn.executemany("INSERT OR IGNORE INTO {0} {1} VALUES (?,?)".format(table_name,tuple(columns)),data)
-        self.conn.commit()
-        
-        # self.c.close()
-    # def create_table(self,table_query):
-    #     # self.get_connection()
-    #     self.conn.execute("""{}""".format(table_query))
-
-        # self.c.close()
-
-
-
-
+import sys
 
 storage = Storage('constituents.db')
 
@@ -64,16 +41,27 @@ try:
     
     
 
-    #create table
-    # storage.run_query("""create table if not exists constituents(
-    #     ISIN  text not null primary key,
-    #     constituents_name text
-    # )""")
+
+    # create table
+    storage.run_query("""create table if not exists constituents(
+        constituent_ISIN  text not null primary key,
+        constituent_name text,
+
+    )""")
+#        date text default CURRENT_DATE
+
+
+
+
+
     #table_name,data,list of column names(string)
-    storage.insert_data('constituents',df.values,['ISIN','constituents_name'])
+    # print(df.values[0],df.values[0][0])
+    storage.insert_data('constituents',df.values.tolist(),df.columns.tolist())
 
     print(list(storage.run_query('select * from constituents')))
-    driver.quit()
 except Exception as e:
     print(e)
+finally:
+    storage.conn.close()
     driver.quit()
+
