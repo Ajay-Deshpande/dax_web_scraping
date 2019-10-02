@@ -29,6 +29,7 @@ def getpath(driver,t):
         return '/html/'+path
     else:
         return path
+        
 def get_tables(args,driver,all_tables={},no_parents=3):
     tables=driver.find_elements_by_tag_name("table")
     print("{} table(s) found".format(len(tables)))
