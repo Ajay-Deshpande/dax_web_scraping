@@ -3,7 +3,7 @@ import sqlite3
 from selenium import webdriver
 import sys
 sys.path.append('.')
-from storage import Storage
+from utility.storage import Storage
 from time import sleep
 
 storage = Storage('constituents.db')
@@ -17,6 +17,7 @@ driver.maximize_window()
 final_df = pd.DataFrame()
 
 try:
+    raise Exception
     for index,row in df.iterrows():
         final_data = {}
         driver.get(url.format(row['constituent_ISIN']))
@@ -48,4 +49,6 @@ except Exception as e:
     print(e)
 finally:
     print('Done collecting')
+    df  = pd.read_excel('master_collection.xlsx')
+    print(df.dtypes)
     driver.quit()
