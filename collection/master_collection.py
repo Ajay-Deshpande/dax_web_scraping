@@ -17,7 +17,7 @@ driver.maximize_window()
 final_df = pd.DataFrame()
 
 try:
-    raise Exception
+    # raise Exception
     for index,row in df.iterrows():
         final_data = {}
         driver.get(url.format(row['constituent_ISIN']))
@@ -42,13 +42,19 @@ try:
         final_data['constituent_name'] = row['constituent_name']
         final_data['constituent_ISIN'] = row['constituent_ISIN']
         final_df = final_df.append(final_data,ignore_index = True)
-        final_df.to_excel('master_collection.xlsx')
+        # print()
+        # cols = list(map(lambda col: nocol))
+        print(final_df.columns)
+        final_df.to_csv('master_collection.csv')
         break
     # print('')
 except Exception as e:
     print(e)
 finally:
     print('Done collecting')
-    df  = pd.read_excel('master_collection.xlsx')
+    df  = pd.read_csv('master_collection.csv')
+    print(df.iloc[:,:2])
     print(df.dtypes)
     driver.quit()
+
+
