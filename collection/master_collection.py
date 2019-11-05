@@ -16,7 +16,7 @@ def collect():
     options = webdriver.ChromeOptions()
     # options.add_argument('--headless')
     driver = webdriver.Chrome('./../../../chromedriver',options = options)
-    final_df = pd.DataFrame()
+    final_data = {}
 
     try:
         # raise Exception
@@ -26,7 +26,7 @@ def collect():
             sleep(3)
             tabs = driver.find_elements_by_xpath('//button[contains(@class,"data-menue-button")]')
             for tab in tabs:
-                if tab.text in ['Charts','News']:
+                if tab.text in ['Charts','News','Company Details']:
                     continue
                 tab.click()
                 sleep(4)
@@ -49,10 +49,20 @@ def collect():
             final_data = cleaner.clean()
             final_data['constituent_name'] = row['constituent_name']
             final_data['constituent_ISIN'] = row['constituent_ISIN']
-            final_df = final_df.append(final_data,ignore_index = True)
+            #storagee kaoadompspodmgpomgsdgodm
             break
     except Exception as e:
         print(e)
     finally:
         print('Done collecting and cleaning')
+        for i in final_data:
+            print(i)
+            print(final_data[i])
+            try:
+                print(final_data[i].dtypes,'\n\n')
+            except:
+                pass
         driver.quit()
+
+
+collect()
