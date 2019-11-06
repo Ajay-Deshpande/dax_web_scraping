@@ -2,27 +2,34 @@ import pandas as pd
 import sqlite3
 from selenium import webdriver
 import sys
-sys.path.append('./../utility')
-from storage import Storage
+sys.path.append('.')
+from utility.storage import Storage
 from time import sleep
 from cleaner import Cleaner
-
+import datetime
+from get_constituents import collect_constituent
 def collect():
-    storage = Storage('./../constituents.db')
-    result = storage.run_query('Select * from constituents')
+    storage = Storage('constituents.db')
+    try:
+        result = storage.run_query('Select * from constituents')
+    except:
+        #if data isnt present fetch it
+        collect_constituent()
+        result = storage.run_query('Select * from constituents')
+
     df = pd.DataFrame(result)
-    df.columns = ['constituent_ISIN','constituent_name']
+    df.columns = ['constituent_name','wkn']
     url = 'https://www.boerse-frankfurt.de/equity/{}?lang=en'
     options = webdriver.ChromeOptions()
     # options.add_argument('--headless')
-    driver = webdriver.Chrome('./../../../chromedriver',options = options)
+    driver = webdriver.Chrome('../chromedriver',options = options)
     final_data = {}
 
     try:
         # raise Exception
         for index,row in df.iterrows():
             final_data = {}
-            driver.get(url.format(row['constituent_ISIN']))
+            driver.get(url.format(row['wkn']))
             sleep(3)
             tabs = driver.find_elements_by_xpath('//button[contains(@class,"data-menue-button")]')
             for tab in tabs:
@@ -47,22 +54,28 @@ def collect():
                     final_data[table_name] = each_df
             cleaner = Cleaner(final_data)
             final_data = cleaner.clean()
-            final_data['constituent_name'] = row['constituent_name']
-            final_data['constituent_ISIN'] = row['constituent_ISIN']
-            #storagee kaoadompspodmgpomgsdgodm
-            break
+            # final_data['constituent_name'] = row['constituent_name']
+            # final_data['constituent_ISIN'] = row['constituent_ISIN']
+            collection_date = datetime.datetime.now().strftime('%d/%m/%y')
+            for table in final_data:
+                #get the Dataframe and filter 
+                latest_date = storage.get_date(table)
+                if not latest_date or collection_date > latest_date:
+                    try:
+                        final_data[table]['collection_date'] = collection_date
+                        final_data[table]['constituent_name'] = row['constituent_name']
+                        final_data[table]['wkn'] = row['wkn']
+                        storage.insert_bulk(table,final_data[table])
+                    except Exception as e:
+                        print(e)
+                else:
+                    print('Already collected')
+            # break
     except Exception as e:
         print(e)
     finally:
-        print('Done collecting and cleaning')
-        for i in final_data:
-            print(i)
-            print(final_data[i])
-            try:
-                print(final_data[i].dtypes,'\n\n')
-            except:
-                pass
         driver.quit()
 
 
-collect()
+if __name__ == '__main__':
+    collect()
