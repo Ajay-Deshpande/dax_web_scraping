@@ -13,10 +13,10 @@ class Storage:
         print('Data inserted')
         # print(data.head())
 
-    def get_date(self,table_name):
+    def get_date(self,table_name,wkn):
         """Get latest collection data"""
         try:
-            query = "SELECT max(collection_date) from {}".format(table_name)
+            query = "SELECT max(collection_date) from {} where wkn = '{}'".format(table_name,wkn)
             date = list(self.conn.execute(query))[0][0]
             return date
         except:

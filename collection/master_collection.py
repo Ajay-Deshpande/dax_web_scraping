@@ -59,8 +59,10 @@ def collect():
             collection_date = datetime.datetime.now().strftime('%d/%m/%y')
             for table in final_data:
                 #get the Dataframe and filter 
-                latest_date = storage.get_date(table)
+                latest_date = storage.get_date(table,row['wkn'])
                 if not latest_date or collection_date > latest_date:
+                    print('Collecting data for {} for constituent {}({})'.format(table,row['constituent_name'],row['wkn']))
+
                     try:
                         final_data[table]['collection_date'] = collection_date
                         final_data[table]['constituent_name'] = row['constituent_name']
@@ -69,8 +71,8 @@ def collect():
                     except Exception as e:
                         print(e)
                 else:
-                    print('Already collected')
-            # break
+                    print('Already collected for {} for constituent {}({})'.format(table,row['constituent_name'],row['wkn']))
+            break
     except Exception as e:
         print(e)
     finally:
