@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Stocks trend Visualizations</title>
+    <script src="{{ url_for('static', filename='package/dist/Chart.min.js') }}"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+	<!-- <script src="../../utils.js"></script> -->
+	<style>
+	canvas {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+	}
+	</style>
+</head>
+
+<body>
+    <p>
+        <a href="http://127.0.0.1:5000/">Daily</a>
+        <a href="http://127.0.0.1:5000/historical">Historical</a>
+    </p>
+
+	<input type="hidden" value='{{data}}' id="data">
+	<input type="hidden" value='{{labels}}' id="labels">
+	<div style="width:75%;">
+		<canvas id="canvas"></canvas>
+	</div>
+	<!-- <button id="randomizeData">Randomize Data</button> -->
+	<script>
+		let plot_data = document.getElementById('data').value.split(' ')
+		let plot_labels = document.getElementById('labels').value.split('-')
+        let scatter_data  = JSON.parse('{{test | tojson}}');
+        const wkn = '{{wkn}}'.split(' ')
+        // console.log(wkn)
+
+		console.log(plot_data,plot_labels)
+	var config = {
+		type: 'scatter',
+		data: {
+			labels:wkn,// ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+			datasets: [{
+				label: 'Sales in mio vs Number of playees',
+				backgroundColor: 'rgb(255,0,0)',
+				borderColor: 'rgb(255,0,0)',
+				fill: false,
+				data:scatter_data,
+				
+			},
+            //  {
+			// 	label: 'My Second dataset',
+			// 	backgroundColor: 'rgb(0,0,255)',
+			// 	borderColor: 'rgb(0,0,255)',
+			// 	fill: false,
+			// 	data:temp_val,
+			// }
+            ]
+		},
+		options: {
+            tooltips: {
+            callbacks: {
+                label: function(tooltipItem, data) {
+                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                    console.log(tooltipItem,data)
+                    // if (label) {
+                    //     label += ': ';
+                    // }
+                    // label += Math.round(tooltipItem.yLabel * 100) / 100;
+                    return wkn[tooltipItem.index]
+                    return label;
+                }
+            }
+        },			responsive: true,
+			title: {
+				display: true,
+				text: 'Number of employees Vs. Sales in mio over 5 years'
+			},
+            legend:{
+                display:false,
+                labels: {
+                // This more specific font property overrides the global property
+                fontColor: 'red'
+            }
+            },
+			scales: {
+				xAxes: [{
+					display: true,
+					scaleLabel: {
+					display: true,
+					labelString: 'Number of employees'
+				}
+				}],
+                yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                },
+				scaleLabel: {
+					display: true,
+					labelString: 'Sales in mio (5 years)'
+				}
+            }]
+			}
+		}
+	};
+
+	window.onload = function() {
+		var ctx = document.getElementById('canvas').getContext('2d');
+		window.myLine = new Chart(ctx, config);
+	};
+
+	
+    </script>
+
+</body>
+
+</html>
