@@ -1,24 +1,9 @@
 import sqlite3
 import pandas as pd
-
-# def create_table_mappings():
-#     df = pd.read_excel('./TABLES/Table_ Mapping.xlsx',index_col=0)
-#     conn = sqlite3.connect('constituents.db')
-#     # print(dff.columns)
-#     conn.execute("""
-#     CREATE TABLE IF NOT EXISTS TABLE_MAPPINGS(
-#         table_name text,
-#         script_name text 
-#     )
-#     """)
-
-#     conn.executemany("INSERT OR IGNORE INTO TABLE_MAPPINGS VALUES(?,?)",df.values)
-#     conn.close()
-#     # print(list(conn.execute('SELECT * FROM TABLE_MAPPINGS')))
-
 import os
 
 def create_historical_price():
+    ## To table for historical price data
     conn = sqlite3.connect('constituents.db')
     # print(dff.columns)
     conn.execute("""

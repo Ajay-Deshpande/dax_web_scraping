@@ -2,7 +2,7 @@ from flask import Flask, render_template,jsonify
 app = Flask(__name__)
 import sqlite3
 import pandas as pd
-# import json
+
 @app.route('/')
 def profit_per_share():
     conn = sqlite3.connect('constituents.db')
@@ -23,16 +23,9 @@ def high_low():
     conn.close()
     return render_template('historical.html',name="daimler-ag",labels=labels,high=high,low=low,high_name="High price",low_name="Low price")
 
-
-
 @app.route('/yearly')
 def yearly():
     conn = sqlite3.connect('constituents.db')
-    # series = pd.read_sql_query('select * from yearly',conn).groupby('constituent_name')['sales_in_mio'].sum()
-    # labels = series.index.tolist()
-    # data = series.values.tolist()
-    # print(str(test)=='{}'.format(test))
-    # print(str(test))
     df = pd.read_sql_query('select * from yearly',conn).groupby('wkn')['number_of_employees','sales_in_mio'].sum()#.to_dict(orient='records')
     df.columns = ['x','y']
     wkn = ' '.join(df.index.tolist())

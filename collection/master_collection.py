@@ -8,12 +8,13 @@ from time import sleep
 from cleaner import Cleaner
 import datetime
 from get_constituents import collect_constituent
+
 def collect():
     storage = Storage('constituents.db')
     try:
         result = storage.run_query('Select * from constituents')
     except:
-        #if data isnt present fetch it
+        ## If constituents under DAX isnt present fetch it by calling another script.
         collect_constituent()
         result = storage.run_query('Select * from constituents')
 
@@ -26,8 +27,8 @@ def collect():
     final_data = {}
 
     try:
-        # raise Exception
         for index,row in df.iterrows():
+            ## To loop over each constituent page.
             final_data = {}
             driver.get(url.format(row['wkn']))
             sleep(3)
@@ -52,13 +53,12 @@ def collect():
                     if not table_name:
                         continue
                     final_data[table_name] = each_df
+            ## Call cleaner to cleanse and format data.
             cleaner = Cleaner(final_data)
             final_data = cleaner.clean()
-            # final_data['constituent_name'] = row['constituent_name']
-            # final_data['constituent_ISIN'] = row['constituent_ISIN']
             collection_date = datetime.datetime.now().strftime('%d/%m/%y')
             for table in final_data:
-                #get the Dataframe and filter 
+                ## Get the dataframe and filter out rows that are already present in database.
                 latest_date = storage.get_date(table,row['wkn'])
                 if not latest_date or collection_date > latest_date:
                     print('Collecting data for {} for constituent {}({})'.format(table,row['constituent_name'],row['wkn']))
@@ -67,6 +67,7 @@ def collect():
                         final_data[table]['collection_date'] = collection_date
                         final_data[table]['constituent_name'] = row['constituent_name']
                         final_data[table]['wkn'] = row['wkn']
+                        ## Insert the data to database.
                         storage.insert_bulk(table,final_data[table])
                     except Exception as e:
                         print(e)

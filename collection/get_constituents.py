@@ -12,9 +12,7 @@ from utility.storage import Storage
 
 def collect_constituent():
     storage = Storage('constituents.db')
-
     driver = webdriver.Chrome('../chromedriver')
-
     try:
         driver.maximize_window()
         driver.get('https://www.boerse-frankfurt.de/?lang=en')
@@ -26,15 +24,16 @@ def collect_constituent():
         sleep(3)
         search_bar.send_keys(Keys.ENTER)
         print(driver.current_url)
+        ## Find the DAX index page
         dax_page = driver.find_element_by_xpath('//a[contains(text(),"DAX")]').get_attribute('href')
         driver.get(dax_page)
         sleep(3)
+        ## Collect the constituents under DAX index.
         driver.find_element_by_xpath('//button[contains(text(),"Constituents")]').click()
         sleep(4)
         driver.find_element_by_xpath('//button[contains(@class,"page-bar-type-button") and contains(text(),"100")]').click()
         sleep(3)
         lst = driver.find_elements_by_xpath('//table/tbody/tr/td/div/a')
-        # print(len(lst))
         df = pd.DataFrame()
         for i in lst:
             df = df.append({'constituent_name' : i.text, 'wkn' : i.get_attribute('href').split('/')[-1]},ignore_index=True)
@@ -45,6 +44,7 @@ def collect_constituent():
         # )""")
         # storage.insert_data('constituents',df.values,['constituents_name','wkn'])
         print(df.head())
+        ## insert the constituents under DAX to an sqlite database
         storage.insert_bulk('constituents',df)
         print('Constituents collected')
         driver.quit()
